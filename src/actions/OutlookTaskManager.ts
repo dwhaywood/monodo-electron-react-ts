@@ -15,16 +15,19 @@ export default class OutlookTaskManager {
     constructor(integration: OutlookIntegration, username: string, password: string, ewsurl: string) {
         //super();
         if (integration == OutlookIntegration.EWS) {
-            this.connection = new EWSIntegration(username: string, password: string, ewsurl: string);
+            if (!ewsurl) {
+                throw 'No URL defined';
+            }
+            this.connection = new EWSIntegration(username, password, ewsurl);
         }
     }
 
     getIncompleteTasks(): Array<Task> {
-        return [];
+        return this.connection.getIncompleteTasks();
     }
 
-    completeTask(taskId: string): Array<Task> {
-        return [];
+    completeTask(taskId: string): void {
+        this.connection.completeTask(taskId);
     }
 }
 
@@ -33,11 +36,27 @@ export class OutlookTask extends Task {
 }
 
 abstract class OutlookIntegrationAbstract {
-
+    connection: any;
+    abstract getIncompleteTasks(): Array<Task>;
+    abstract completeTask(taskId: string): void;
 }
 
-class EWSIntegration {
+class EWSIntegration extends OutlookIntegrationAbstract {
+
     constructor(username: string, password: string, ewsurl: string) {
-        //TODO: 
+        super();
+        //TODO: Make connection
+    }
+
+    getIncompleteTasks(): Array<Task> {
+        return [];
+    }
+
+    completeTask(taskId: string): void {
+        //Complete task
+    }
+
+    exectuteCall(ewsArgs: string): string {
+        return '';
     }
 }

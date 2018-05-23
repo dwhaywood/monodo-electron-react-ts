@@ -3,7 +3,7 @@
   "productName": "monodo-electron-react-ts",
   "version": "1.0.0",
   "description": "My Electron application description",
-  "main": "src/index.ts",
+  "main": "src/reducers/index.ts",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -47,15 +47,20 @@
     }
   },
   "dependencies": {
+    "@material-ui/core": "^1.0.0",
+    "@material-ui/icons": "^1.0.0",
     "@types/electron-devtools-installer": "^2.0.2",
-    "@types/react": "^0.14.55",
-    "@types/react-dom": "^0.14.20",
+    "@types/react": "^16.3.14",
+    "@types/react-dom": "^16.0.5",
     "electron-compile": "^6.4.2",
     "electron-devtools-installer": "^2.1.0",
     "electron-squirrel-startup": "^1.0.0",
-    "react": "^15.4.1",
-    "react-dom": "^15.4.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "react-hot-loader": "^3.0.0-beta.6",
+    "react-timer-hoc": "^2.3.0",
+    "react-toolbox": "^2.0.0-beta.12",
+    "react-transition-group": "^1.2.1",
     "tslib": "^1.4.0"
   },
   "devDependencies": {
@@ -65,6 +70,6 @@
     "electron-forge": "^5.2.2",
     "electron-prebuilt-compile": "2.0.0",
     "tslint": "^5.1.0",
-    "typescript": "~2.2.2"
+    "typescript": "^2.8.3"
   }
 }
