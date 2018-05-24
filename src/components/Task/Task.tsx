@@ -1,29 +1,11 @@
 import * as React from 'react';
 import { Component } from 'react';
+import TaskModel from '../../actions/TaskModel';
 
-
-export enum Priorities {
-    High,
-    Normal,
-    Low
-}
-
-export enum Sizes {
-    Tiny,
-    Quick,
-    Small,
-    Medium,
-    Large,
-    XtraLarge
-}
 
 export interface TaskProps {
-  Name: string;
-  Priority?: Priorities;
-  Details?: string ;
-  Size?: Sizes ;
-  DueDate?: Date ;
-  StartDate?: Date ;
+  checked: boolean;
+  Task: TaskModel;
 }
 
 export interface TaskState {
@@ -31,13 +13,6 @@ export interface TaskState {
 }
 
 export default class Task extends Component<TaskProps, TaskState> {
-    static defaultProps: Object = {
-        Priority: Priorities.Normal,
-        Details: '',
-        Size: Sizes.Medium,
-        DueDate: new Date(),
-        StartDate: new Date(),
-    };
     /**
      * Constructor
      */
@@ -70,7 +45,7 @@ export default class Task extends Component<TaskProps, TaskState> {
             ) : ''}
             */}
             <span className='text'>
-              <strong>{this.props.Name}</strong>: {this.props.DueDate!.toDateString()}
+              <strong>{this.props.Task.Name}</strong>: {this.props.Task.DueDate!.toDateString()}
             </span>
           </li>
         );

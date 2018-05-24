@@ -25,6 +25,10 @@ const styles = {
 };
 export interface MenuAppBarProps {
   classes: any;
+  loginCallback?(login: {username: string, password: string}): void;
+  logoutCallback?(): void;
+
+
 }
 export interface MenuAppBarState {
   auth: boolean;
@@ -53,6 +57,10 @@ class MenuAppBar extends React.Component<MenuAppBarProps & WithStyles, MenuAppBa
 
   handleClose = () => {
     this.setState({ anchorEl: null });
+  }
+
+  handleLogout = () => {
+    this.setState({ auth: false, username: '' });
   }
 
   handleLoginClick = () => {
@@ -88,6 +96,9 @@ class MenuAppBar extends React.Component<MenuAppBarProps & WithStyles, MenuAppBa
             <Typography variant="title" color="inherit" className={classes.flex}>
               Tasks
             </Typography>
+            <Typography variant="subheading" color="inherit" className={classes.flex} align="right">
+              {this.state.username}
+            </Typography>
             {auth ? (
               <div>
                 <IconButton
@@ -111,7 +122,7 @@ class MenuAppBar extends React.Component<MenuAppBarProps & WithStyles, MenuAppBa
                   onClose={this.handleClose}
                 >
                   <MenuItem onClick={this.handleClose}>Profile</MenuItem>
-                  <MenuItem onClick={this.handleClose}>My account</MenuItem>
+                  <MenuItem onClick={this.handleLogout}>Log out</MenuItem>
                 </Menu>
               </div>
             ) : (

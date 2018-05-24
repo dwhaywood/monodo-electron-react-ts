@@ -1,9 +1,23 @@
 import * as React from 'react';
 import { Component } from 'react';
 import Button from '@material-ui/core/Button';
-
+import { withStyles, WithStyles, StyledComponentProps } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography/Typography';
+import { Paper } from '@material-ui/core';
+
+const styles = (theme: any) => ({
+    button: {
+      margin: theme.spacing.unit,
+    },
+    input: {
+      display: 'none',
+    },
+    root: theme.mixins.gutters({
+        paddingTop: 16,
+        paddingBottom: 16,
+        }),
+  });
 
 export interface TimerProps {
     initialTimeRemaining?: number;
@@ -21,11 +35,12 @@ export interface TimerState {
     timeoutId?: NodeJS.Timer;
     prevTime?: number;
     totalDuration?: number;
+    timerExpired?: boolean;
 }
 
-export default class Timer extends Component<TimerProps, TimerState> {
+class Timer extends Component<TimerProps & WithStyles<"root" | "button" | "input">, TimerState> {
     _isMounted: boolean;
-    constructor(props: TimerProps) {
+    constructor(props: TimerProps & WithStyles<"root" | "button" | "input">) {
         super(props);
         this.state =  {timeRemaining: this.props.initialTimeRemaining!};
     }
@@ -59,6 +74,7 @@ export default class Timer extends Component<TimerProps, TimerState> {
     start(): void {
         this.setState({
             stopped: false,
+            prevTime: undefined
         }, this.tick);
     }
 
@@ -87,9 +103,11 @@ export default class Timer extends Component<TimerProps, TimerState> {
     }
 
     addTime(amount: number = 30000): void {
+        let newTimeRemaining = this.state.timeRemaining! > 0 ? this.state.timeRemaining! + amount : amount;
         this.setState({
+            timerExpired: (newTimeRemaining > 0),
             totalDuration: this.state.totalDuration! + amount,
-            timeRemaining: this.state.timeRemaining! + amount
+            timeRemaining: newTimeRemaining
         });
     }
 
@@ -107,23 +125,25 @@ export default class Timer extends Component<TimerProps, TimerState> {
           timeout += interval;
         }
     
-        let timeRemaining = Math.max(this.state.timeRemaining! - dt, 0);
-        let countdownComplete = (this.state.prevTime && timeRemaining <= 0);
+        let timeRemaining = this.state.timeRemaining! - dt;
+        if (timeRemaining <= 0 && !this.state.timerExpired) {
+            this.setState({
+                timerExpired: true
+            });
+            if (this.props.timerEndCallback) { this.props.timerEndCallback(); }
+        }
     
-        if (countdownComplete) {this.stop(); }
         if (this._isMounted) {
           if (this.state.timeoutId) { clearTimeout(this.state.timeoutId); }
           this.setState({
-            timeoutId: countdownComplete ? undefined : setTimeout(() => {this.tick(); }, timeout),
+            timeoutId: setTimeout(() => {this.tick(); }, timeout),
             prevTime: currentTime,
             timeRemaining: timeRemaining
           });
+        } else {
+            this.setState({prevTime: undefined});
         }
     
-        if (countdownComplete) {
-          if (this.props.timerEndCallback) { this.props.timerEndCallback(); }
-          return;
-        }
     
         if (this.props.tickCallback) {
           this.props.tickCallback(timeRemaining);
@@ -135,7 +155,9 @@ export default class Timer extends Component<TimerProps, TimerState> {
         if (this.props.formatFunc) {
           return this.props.formatFunc(milliseconds);
         }
-    
+
+        let minus = milliseconds < 0 ? '-' : '';
+        milliseconds = Math.abs(milliseconds);
         let totalSeconds: number = Math.round(milliseconds / 1000);
     
         let seconds = parseInt((totalSeconds % 60).toString(), 10);
@@ -146,49 +168,45 @@ export default class Timer extends Component<TimerProps, TimerState> {
         let s_minutes = minutes < 10 ? '0' + minutes : minutes;
         let s_hours = hours < 10 ? '0' + hours : hours;
     
-        return s_hours + ':' + s_minutes + ':' + s_seconds;
+        return minus + s_hours + ':' + s_minutes + ':' + s_seconds;
     }
     render() {
         let timeLeft: number = this.state.timeRemaining!;
+        const { classes } = this.props;
         return (
-            <div className='timer'>
-            <Grid container spacing={0} direction='column' justify="center">
-                <Grid container spacing={0} justify="center">
-                    <Grid item xs={4}>
-                            <Typography variant="display4" gutterBottom>
+            <Grid item xs={12} >
+                <Paper className={classes.root} elevation={8}>
+                <Grid container spacing={8} justify="center">
+                    <Grid item xs={12}>
+                            <Typography variant="display4" align='center' color={ this.state.timerExpired ? 'secondary' : 'primary'}>
                             {this.getFormattedTime(timeLeft)}
+                            </Typography>
+                            <Typography variant="display1" align='center' gutterBottom>
+                                Find the project for the thing then send all the emails etc long task name
                             </Typography>
                     </Grid>
                 </Grid>
-                <Grid container spacing={16} justify="center">
-                    <Grid item xs={1}>
-                        <Button className='start' variant='raised' size='small' onClick={this.start.bind(this)}>
+                <Grid container spacing={8} justify="center">
+                        <Button className={classes.button} variant='raised' size='small'   onClick={this.start.bind(this)}>
                             Start
                         </Button>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Button className='pause' variant='raised' size='small' onClick={this.stop.bind(this)}>
+                        <Button className={classes.button} variant='raised' size='small' onClick={this.stop.bind(this)}>
                             Pause
                         </Button>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Button className='complete' variant='raised' size='small' onClick={this.complete.bind(this)}>
+                        <Button className={classes.button} variant='raised' size='small' onClick={this.complete.bind(this)}>
                             Complete
                         </Button>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Button className='skip' variant='raised' size='small' onClick={this.skip.bind(this)}>
+                        <Button className={classes.button} variant='raised' size='small' onClick={this.skip.bind(this)}>
                             Skip
                         </Button>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Button color='default' variant='raised' size='small' onClick={this.addTime.bind(this, (1000 * 60 * 5))}>
+                        <Button className={classes.button} color='default' variant='raised' size='small' onClick={this.addTime.bind(this, (1000 * 60 * 5))}>
                             +5:00
                         </Button>
-                    </Grid>
                 </Grid>
+                </Paper>
             </Grid>
-            </div>
         );
     }
 }
+
+export default withStyles(styles)(Timer);

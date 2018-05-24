@@ -15,20 +15,16 @@ export enum Sizes {
 
 
 export default class TaskModel  {
-    Name: string;
-    Priority?: Priorities;
-    Details?: string ;
-    Size?: Sizes ;
-    DueDate?: Date ;
-    StartDate?: Date ;
+    Name?: string = '';
+    Priority?: Priorities = Priorities.Normal;
+    Details?: string = '';
+    Size?: Sizes = Sizes.Small;
+    DueDate?: Date = new Date();
+    StartDate?: Date = new Date();
 
-    constructor(initialValues: object) {
+    constructor(init?: Partial<TaskModel>) {
         //
-        Object.keys(initialValues).forEach((prop) => {
-            if (this.hasOwnProperty(prop)) {
-                this[prop] = initialValues[prop];
-            }
-        });
+        Object.assign(this, init);
     }
 
 }
